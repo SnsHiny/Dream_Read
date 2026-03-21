@@ -193,16 +193,19 @@ export const dreamController = {
       const analysis = await dreamAnalysisService.analyzeDream(content, userInfo);
       
       const tags = analysis.coreSymbols.map(s => s.symbol);
+      const tagsJson = JSON.stringify(tags);
+      const analysisJson = JSON.stringify(analysis);
       
       let dream;
       try {
         const id = generateId();
         const result = await query<any>(
-          'insert into dreams (id, user_id, content, input_type, mood, tags, analysis, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7, now(), now()) returning *',
-          [id, userId, content, inputType || 'text', mood || null, tags, analysis]
+          'insert into dreams (id, user_id, content, input_type, mood, tags, analysis, created_at, updated_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb, now(), now()) returning *',
+          [id, userId, content, inputType || 'text', mood || null, tagsJson, analysisJson]
         );
         dream = result.rows[0];
       } catch (dbError) {
+        console.error('DB insert dream failed:', (dbError as any)?.message || dbError);
         // 使用内存存储
         const id = generateId();
         dream = {
@@ -400,22 +403,17 @@ export const profileController = {
           }))
         );
         
-        const dbProfileData = mapProfileToDb(profileData);
-
         try {
           const id = generateId();
-          const cols = Object.keys(dbProfileData);
-          const insertCols = ['id', 'user_id', ...cols, 'created_at', 'updated_at'];
-          const vals = [id, userId, ...cols.map((c) => (dbProfileData as any)[c])];
-          const placeholders = vals.map((_, i) => `$${i + 1}`).join(', ');
-          const colSql = insertCols.map((c) => `"${c}"`).join(', ');
-          const updateSet = cols.map((c) => `"${c}" = EXCLUDED."${c}"`).join(', ') + ', "updated_at" = now()';
-          const sql = `insert into profiles (${colSql}) values (${placeholders}, now(), now())
-            on conflict (user_id) do update set ${updateSet}
-            returning *`;
-          const result = await query<any>(sql, vals);
+          const dreamThemesJson = JSON.stringify(profileData.dreamThemes);
+          const emotionalTrendsJson = JSON.stringify(profileData.emotionalTrends);
+          const result = await query<any>(
+            'insert into profiles (id, user_id, dream_themes, emotional_trends, profile_summary, archetype_description, created_at, updated_at) values ($1,$2,$3::jsonb,$4::jsonb,$5,$6, now(), now()) on conflict (user_id) do update set dream_themes = excluded.dream_themes, emotional_trends = excluded.emotional_trends, profile_summary = excluded.profile_summary, archetype_description = excluded.archetype_description, updated_at = now() returning *',
+            [id, userId, dreamThemesJson, emotionalTrendsJson, profileData.profileSummary, profileData.archetypeDescription]
+          );
           profile = mapProfileFromDb(result.rows[0]);
         } catch (dbError) {
+          console.error('DB upsert profile failed:', (dbError as any)?.message || dbError);
           const id = generateId();
           profile = {
             _id: id,
@@ -474,21 +472,17 @@ export const profileController = {
         }))
       );
       
-      const dbProfileData = mapProfileToDb(profileData);
-
       let profile;
       try {
-        const cols = Object.keys(dbProfileData);
-        const vals = [userId, ...cols.map((c) => (dbProfileData as any)[c])];
-        const placeholders = vals.map((_, i) => `$${i + 1}`).join(', ');
-        const colSql = ['user_id', ...cols].map((c) => `"${c}"`).join(', ');
-        const updateSet = cols.map((c) => `"${c}" = EXCLUDED."${c}"`).join(', ') + ', "updated_at" = now()';
-        const sql = `insert into profiles (${colSql}, created_at, updated_at) values (${placeholders}, now(), now())
-          on conflict (user_id) do update set ${updateSet}
-          returning *`;
-        const result = await query<any>(sql, vals);
+        const dreamThemesJson = JSON.stringify(profileData.dreamThemes);
+        const emotionalTrendsJson = JSON.stringify(profileData.emotionalTrends);
+        const result = await query<any>(
+          'insert into profiles (user_id, dream_themes, emotional_trends, profile_summary, archetype_description, created_at, updated_at) values ($1,$2::jsonb,$3::jsonb,$4,$5, now(), now()) on conflict (user_id) do update set dream_themes = excluded.dream_themes, emotional_trends = excluded.emotional_trends, profile_summary = excluded.profile_summary, archetype_description = excluded.archetype_description, updated_at = now() returning *',
+          [userId, dreamThemesJson, emotionalTrendsJson, profileData.profileSummary, profileData.archetypeDescription]
+        );
         profile = mapProfileFromDb(result.rows[0]);
       } catch (dbError) {
+        console.error('DB refresh profile failed:', (dbError as any)?.message || dbError);
         const id = generateId();
         profile = {
           _id: id,

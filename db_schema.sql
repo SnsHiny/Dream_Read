@@ -26,7 +26,8 @@ CREATE TABLE dreams (
   mood TEXT,
   tags JSONB,
   analysis JSONB,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- 4. 创建用户画像表 (profiles)
