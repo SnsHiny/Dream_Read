@@ -17,7 +17,7 @@
 
 ### 2) 准备环境变量
 
-在服务器目录创建 `.env`（与 `docker-compose.yml` 同级），填入（参考项目根目录的 `.env.example`）：
+在服务器目录创建 `.env`（与 `docker-compose.yml` 同级），填入（参考项目根目录的 `.env.example`）。后端与容器均以根目录 `.env` 为准，不再使用 `backend/.env`：
 
 ```env
 DATABASE_URL=

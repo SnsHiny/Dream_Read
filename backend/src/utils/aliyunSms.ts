@@ -5,13 +5,13 @@ import Util, * as $Util from '@alicloud/tea-util';
 export default class Client {
 
   /**
-   * 使用AK&SK初始化账号Client
+   * 使用AK&SK初始化账号Client，仅需初始化一次
    * @return Client
    * @throws Exception
    */
   static createClient(): Dypnsapi20170525 {
-    const accessKeyId = process.env.ALIYUN_ACCESS_KEY_ID;
-    const accessKeySecret = process.env.ALIYUN_ACCESS_KEY_SECRET;
+    const accessKeyId = process.env.ALIYUN_SMS_ACCESS_KEY_ID;
+    const accessKeySecret = process.env.ALIYUN_SMS_ACCESS_KEY_SECRET;
 
     if (!accessKeyId || !accessKeySecret) {
       throw new Error('Aliyun SMS configuration missing');
@@ -33,8 +33,8 @@ export default class Client {
    */
   static async sendSmsVerifyCode(phoneNumber: string): Promise<string> {
     const client = Client.createClient();
-    const signName = process.env.SMS_SIGN_NAME;
-    const templateCode = process.env.SMS_TEMPLATE_CODE;
+    const signName = process.env.ALIYUN_SMS_SIGN_NAME;
+    const templateCode = process.env.ALIYUN_SMS_TEMPLATE_CODE;
 
     if (!signName || !templateCode) {
       throw new Error('Aliyun SMS SignName or TemplateCode missing');

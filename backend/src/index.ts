@@ -1,5 +1,17 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import fs from 'fs';
+import path from 'path';
+
+(() => {
+  const candidates = [
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(process.cwd(), '../.env'),
+    path.resolve(process.cwd(), '../../.env'),
+  ];
+
+  const envPath = candidates.find((p) => fs.existsSync(p));
+  dotenv.config(envPath ? { path: envPath } : undefined);
+})();
 
 import express from 'express';
 import cors from 'cors';

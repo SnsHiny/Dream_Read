@@ -13,6 +13,7 @@
 ## 技术栈
 
 ### 前端
+
 - React 18 + TypeScript
 - TailwindCSS
 - Framer Motion
@@ -20,6 +21,7 @@
 - Recharts (图表)
 
 ### 后端
+
 - Node.js + Express
 - MongoDB + Mongoose
 - OpenAI API (支持兼容API)
@@ -27,6 +29,7 @@
 ## 快速开始
 
 ### 环境要求
+
 - Node.js 18+
 - MongoDB 6.0+
 
@@ -45,12 +48,14 @@ npm install
 ### 配置环境变量
 
 复制后端环境变量模板：
+
 ```bash
 cd backend
 cp .env.example .env
 ```
 
 编辑 `.env` 文件，配置以下变量：
+
 ```
 PORT=3001
 MONGODB_URI=mongodb://localhost:27017/dreamapp
@@ -74,7 +79,7 @@ cd frontend
 npm run dev
 ```
 
-访问 http://localhost:3000 开始使用。
+访问 <http://localhost:3000> 开始使用。
 
 ## 项目结构
 
@@ -110,16 +115,19 @@ Dream/
 ## API 接口
 
 ### 用户相关
+
 - `POST /api/users` - 创建/更新用户
 - `GET /api/users/:userId` - 获取用户信息
 
 ### 梦境相关
+
 - `POST /api/dreams` - 创建梦境并解析
 - `GET /api/dreams/:userId` - 获取梦境列表
 - `GET /api/dream/detail/:dreamId` - 获取梦境详情
 - `DELETE /api/dreams/:dreamId` - 删除梦境
 
 ### 画像相关
+
 - `GET /api/profile/:userId` - 获取用户画像
 - `POST /api/profile/:userId/refresh` - 刷新用户画像
 - `GET /api/profile/:userId/trends` - 获取情绪趋势
@@ -127,11 +135,13 @@ Dream/
 ## 解析理论来源
 
 ### 西方心理学经典
+
 - 弗洛伊德《梦的解析》
 - 荣格分析心理学
 - 现代心理学研究
 
 ### 中国文化经典
+
 - 《周公解梦》
 - 《周礼》六梦分类
 - 道家梦论

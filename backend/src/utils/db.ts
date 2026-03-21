@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrlRaw = process.env.DATABASE_URL;
+const databaseUrl = databaseUrlRaw && databaseUrlRaw.includes('${') ? undefined : databaseUrlRaw;
 const databaseHost = process.env.DATABASE_HOST;
 const databasePort = Number(process.env.DATABASE_PORT || 5432);
 const databaseName = process.env.DATABASE_NAME;
@@ -28,4 +29,3 @@ export async function query<T = any>(text: string, params?: any[]): Promise<{ ro
   const result = await pool.query(text, params);
   return { rows: result.rows as T[] };
 }
-

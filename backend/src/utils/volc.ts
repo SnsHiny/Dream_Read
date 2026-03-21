@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_KEY = process.env.VOLC_API_KEY;
-const MODEL_NAME = process.env.VOLC_MODEL;
+const API_KEY = process.env.VOLC_API_KEY || '';
+const MODEL_NAME = process.env.VOLC_MODEL || '';  
 
 if (!API_KEY || !MODEL_NAME) {
   console.warn('VolcEngine API key or Model name is missing');
