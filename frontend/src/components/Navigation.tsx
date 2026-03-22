@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Moon, Home, User, History, LogOut } from 'lucide-react';
 import { useStore } from '@/store';
+import oneiroLogo from '@/assets/oneiro-logo.svg';
 
 const navItems = [
   { path: '/', icon: Home, label: '首页' },
@@ -26,13 +27,14 @@ export function Navigation() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
             <Link to="/" className="hidden md:flex items-center gap-2">
-              <motion.div
+              <motion.img
+                src={oneiroLogo}
+                alt="Oneiro梦象"
+                className="w-8 h-8"
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 4, repeat: Infinity }}
-              >
-                <Moon className="w-8 h-8 text-purple-400" />
-              </motion.div>
-              <span className="text-xl font-bold text-gradient">解梦</span>
+              />
+              <span className="text-xl font-bold text-gradient">Oneiro梦象</span>
             </Link>
 
             <div className="flex items-center justify-around w-full md:w-auto md:gap-8">
