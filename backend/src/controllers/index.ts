@@ -68,6 +68,7 @@ const mapDreamFromDb = (dbDream: any) => {
     ...dbDream,
     id: dbDream.id,
     userId: dbDream.user_id,
+    dreamDate: dbDream.dream_date,
     inputType: dbDream.input_type,
     tags: dbDream.tags || [],
     createdAt: dbDream.created_at,
@@ -82,6 +83,7 @@ const normalizeDream = (dream: any) => {
     ...dream,
     id: dream.id || dream._id,
     userId: dream.userId || dream.user_id,
+    dreamDate: dream.dreamDate || dream.dream_date,
     inputType: dream.inputType || dream.input_type,
     tags: dream.tags || [],
     createdAt: dream.createdAt || dream.created_at,
@@ -162,7 +164,12 @@ export const userController = {
 export const dreamController = {
   async createDream(req: Request, res: Response) {
     try {
-      const { userId, content, inputType, mood } = req.body;
+      const { userId, content, inputType, mood, dreamDate } = req.body;
+      const isValidDate = typeof dreamDate === 'string' && 
+        /^\d{4}-\d{2}-\d{2}$/.test(dreamDate) && 
+        !isNaN(new Date(dreamDate).getTime()) && 
+        new Date(dreamDate) <= new Date();
+      const dreamDateStr = isValidDate ? dreamDate : null;
       
       let user;
       try {
@@ -200,8 +207,8 @@ export const dreamController = {
       try {
         const id = generateId();
         const result = await query<any>(
-          'insert into dreams (id, user_id, content, input_type, mood, tags, analysis, created_at, updated_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb, now(), now()) returning *',
-          [id, userId, content, inputType || 'text', mood || null, tagsJson, analysisJson]
+          'insert into dreams (id, user_id, dream_date, content, input_type, mood, tags, analysis, created_at, updated_at) values ($1,$2, coalesce($3::date, current_date), $4,$5,$6,$7::jsonb,$8::jsonb, now(), now()) returning *',
+          [id, userId, dreamDateStr, content, inputType || 'text', mood || null, tagsJson, analysisJson]
         );
         dream = result.rows[0];
       } catch (dbError) {
@@ -212,6 +219,7 @@ export const dreamController = {
           id,
           _id: id,
           userId,
+          dreamDate: dreamDateStr || new Date().toISOString().slice(0, 10),
           content,
           inputType: inputType || 'text',
           mood,
@@ -260,7 +268,7 @@ export const dreamController = {
         params.push(offset);
 
         const listResult = await query<any>(
-          `select * from dreams where ${where} order by created_at desc limit $${params.length - 1} offset $${params.length}`,
+          `select * from dreams where ${where} order by dream_date desc nulls last, created_at desc limit $${params.length - 1} offset $${params.length}`,
           params
         );
         dreams = (listResult.rows || []).map(mapDreamFromDb);
@@ -371,7 +379,7 @@ export const profileController = {
         let dreams = [];
         try {
           const result = await query<any>(
-            'select content, analysis, created_at from dreams where user_id = $1 order by created_at desc',
+            'select content, analysis, dream_date, created_at from dreams where user_id = $1 order by dream_date desc nulls last, created_at desc',
             [userId]
           );
           dreams = result.rows;
@@ -399,7 +407,7 @@ export const profileController = {
           dreams.map(d => ({
             content: d.content,
             analysis: d.analysis,
-            createdAt: d.created_at || d.createdAt
+            createdAt: d.dream_date ? new Date(d.dream_date) : (d.created_at || d.createdAt)
           }))
         );
         
@@ -440,7 +448,7 @@ export const profileController = {
       let dreams = [];
       try {
         const result = await query<any>(
-          'select content, analysis, created_at from dreams where user_id = $1 order by created_at desc',
+          'select content, analysis, dream_date, created_at from dreams where user_id = $1 order by dream_date desc nulls last, created_at desc',
           [userId]
         );
         dreams = result.rows;
@@ -468,7 +476,7 @@ export const profileController = {
         dreams.map(d => ({
           content: d.content,
           analysis: d.analysis,
-          createdAt: d.created_at || d.createdAt
+          createdAt: d.dream_date ? new Date(d.dream_date) : (d.created_at || d.createdAt)
         }))
       );
       
@@ -512,7 +520,7 @@ export const profileController = {
       let dreams = [];
       try {
         const result = await query<any>(
-          'select created_at, analysis from dreams where user_id = $1 and created_at >= $2 order by created_at asc',
+          'select dream_date, created_at, analysis from dreams where user_id = $1 and coalesce(dream_date::timestamp, created_at) >= $2 order by coalesce(dream_date::timestamp, created_at) asc',
           [userId, startDate]
         );
         dreams = result.rows;
@@ -526,22 +534,24 @@ export const profileController = {
       }
       
       const trends = dreams.map(dream => ({
-        date: dream.created_at || dream.createdAt,
-        anxiety: 0,
-        joy: 0,
-        fear: 0,
-        peace: 0,
+        date: dream.dream_date || dream.created_at || dream.createdAt,
+        happiness: 0,
         sadness: 0,
+        anger: 0,
+        fear: 0,
+        disgust: 0,
+        surprise: 0,
         // Map emotional state if available
         ...(dream.analysis?.emotionalState ? (() => {
           const mood = dream.analysis.emotionalState.mood?.toLowerCase() || '';
           const intensity = (dream.analysis.emotionalState.intensity || 5) / 10;
           return {
-            anxiety: mood.includes('焦虑') || mood.includes('紧张') ? intensity : 0,
-            joy: mood.includes('愉悦') || mood.includes('快乐') || mood.includes('幸福') ? intensity : 0,
+            happiness: mood.includes('快乐') || mood.includes('愉悦') || mood.includes('开心') || mood.includes('幸福') ? intensity : 0,
+            sadness: mood.includes('悲伤') || mood.includes('忧郁') || mood.includes('难过') ? intensity : 0,
+            anger: mood.includes('愤怒') || mood.includes('生气') || mood.includes('愠怒') ? intensity : 0,
             fear: mood.includes('恐惧') || mood.includes('害怕') ? intensity : 0,
-            peace: mood.includes('平静') || mood.includes('安宁') ? intensity : 0,
-            sadness: mood.includes('悲伤') || mood.includes('忧郁') ? intensity : 0
+            disgust: mood.includes('厌恶') || mood.includes('恶心') || mood.includes('反感') ? intensity : 0,
+            surprise: mood.includes('惊讶') || mood.includes('震惊') || mood.includes('意外') ? intensity : 0
           };
         })() : {})
       }));

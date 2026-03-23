@@ -56,16 +56,28 @@ interface VoiceInputProps {
 export function VoiceInput({ onTranscript, className = '' }: VoiceInputProps) {
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
+  const [hint, setHint] = useState<string | null>(null);
   const recognitionRef = useRef<ISpeechRecognition | null>(null);
+  const shouldListenRef = useRef(false);
 
   const startListening = useCallback(() => {
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (!SpeechRecognitionAPI) {
       setIsSupported(false);
-      alert('您的浏览器不支持语音识别功能，请使用Chrome或Edge浏览器');
+      setHint('当前浏览器不支持语音识别（建议使用 Chrome/Edge）。');
       return;
     }
+
+    const isSecure = window.isSecureContext || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isSecure) {
+      setIsSupported(false);
+      setHint('语音识别需要 HTTPS 环境（上线域名请开启 HTTPS）。');
+      return;
+    }
+
+    setHint(null);
+    shouldListenRef.current = true;
 
     const recognition = new SpeechRecognitionAPI();
     recognition.lang = 'zh-CN';
@@ -89,10 +101,25 @@ export function VoiceInput({ onTranscript, className = '' }: VoiceInputProps) {
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('语音识别错误:', event.error);
+      shouldListenRef.current = false;
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        setHint('未授予麦克风权限或系统禁止语音识别，请在浏览器设置中允许麦克风权限。');
+      } else if (event.error === 'network') {
+        setHint('语音识别网络异常，请检查网络或稍后重试。');
+      } else {
+        setHint(`语音识别失败：${event.error}`);
+      }
       setIsListening(false);
     };
 
     recognition.onend = () => {
+      if (shouldListenRef.current) {
+        try {
+          recognition.start();
+          return;
+        } catch {
+        }
+      }
       setIsListening(false);
     };
 
@@ -103,6 +130,7 @@ export function VoiceInput({ onTranscript, className = '' }: VoiceInputProps) {
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
+      shouldListenRef.current = false;
       recognitionRef.current.stop();
       setIsListening(false);
     }
@@ -173,6 +201,10 @@ export function VoiceInput({ onTranscript, className = '' }: VoiceInputProps) {
         >
           正在聆听...
         </motion.p>
+      )}
+
+      {hint && !isListening && (
+        <p className="mt-2 text-xs text-gray-400 max-w-[240px]">{hint}</p>
       )}
     </div>
   );

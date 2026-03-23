@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Moon, Send, Sparkles, AlertCircle } from 'lucide-react';
+import { Moon, Send, Sparkles, AlertCircle, Calendar } from 'lucide-react';
 import { Button, GlowCard, PageTransition } from '@/components/ui';
 import { VoiceInput } from '@/components/VoiceInput';
 import { DreamAnalysisView } from '@/components/DreamAnalysisView';
@@ -300,6 +300,13 @@ export function DreamPage() {
   const navigate = useNavigate();
   const { user, createDream, isLoading, error, clearError } = useStore();
   const [dreamContent, setDreamContent] = useState('');
+  const [dreamDate, setDreamDate] = useState(() => {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  });
   const [currentDream, setCurrentDream] = useState<Dream | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
 
@@ -316,7 +323,8 @@ export function DreamPage() {
     try {
       const dream = await createDream({ 
         content: dreamContent.trim(),
-        inputType: 'text'
+        inputType: 'text',
+        dreamDate,
       });
       setCurrentDream(dream);
       setShowAnalysis(true);
@@ -368,6 +376,19 @@ export function DreamPage() {
               </div>
 
               <GlowCard className="mb-6" hover={false}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-dream-border">
+                  <div className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Calendar className="w-4 h-4" />
+                    <span>做梦日期</span>
+                  </div>
+                  <input
+                    type="date"
+                    className="input-field w-full sm:w-[180px]"
+                    value={dreamDate}
+                    onChange={(e) => setDreamDate(e.target.value)}
+                    max={new Date().toISOString().slice(0, 10)}
+                  />
+                </div>
                 <textarea
                   value={dreamContent}
                   onChange={(e) => setDreamContent(e.target.value)}

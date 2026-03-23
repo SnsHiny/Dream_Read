@@ -21,6 +21,7 @@ CREATE TABLE users (
 CREATE TABLE dreams (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  dream_date DATE DEFAULT CURRENT_DATE,
   content TEXT,
   input_type TEXT DEFAULT 'text',
   mood TEXT,

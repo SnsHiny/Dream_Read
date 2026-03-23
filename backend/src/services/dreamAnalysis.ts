@@ -124,7 +124,7 @@ function buildUserPrompt(dreamContent: string, userInfo?: UserInfo): string {
   
   prompt += `\n请根据以上信息，结合你的专业知识，对这个梦境进行全面、深入的解析。记住要：
 1. 识别梦境中的核心象征，并从多个理论视角进行解读
-2. 分析梦境反映的情绪和心理状态
+2. 分析梦境反映的情绪和心理状态（情绪类型请从埃克曼六种基本情绪中选择其一：快乐、悲伤、愤怒、恐惧、厌恶、惊讶）
 3. 建立梦境与现实生活的合理联系
 4. 给出温和的思考建议
 5. 在适当位置引用理论来源
@@ -166,12 +166,12 @@ export class DreamAnalysisService {
 
   async generateUserProfile(dreams: Array<{ content: string; analysis?: DreamAnalysis; createdAt: Date }>): Promise<{
     dreamThemes: Array<{ theme: string; count: number; lastOccurrence: Date }>;
-    emotionalTrends: Array<{ date: Date; anxiety: number; joy: number; fear: number; peace: number; sadness: number }>;
+    emotionalTrends: Array<{ date: Date; happiness: number; sadness: number; anger: number; fear: number; disgust: number; surprise: number }>;
     profileSummary: string;
     archetypeDescription: string;
   }> {
     const themeMap = new Map<string, { count: number; lastOccurrence: Date }>();
-    const emotionalTrends: Array<{ date: Date; anxiety: number; joy: number; fear: number; peace: number; sadness: number }> = [];
+    const emotionalTrends: Array<{ date: Date; happiness: number; sadness: number; anger: number; fear: number; disgust: number; surprise: number }> = [];
 
     for (const dream of dreams) {
       if (dream.analysis) {
@@ -190,11 +190,12 @@ export class DreamAnalysisService {
           
           emotionalTrends.push({
             date: dream.createdAt,
-            anxiety: mood.includes('焦虑') || mood.includes('紧张') ? intensity : 0,
-            joy: mood.includes('愉悦') || mood.includes('快乐') || mood.includes('幸福') ? intensity : 0,
+            happiness: mood.includes('快乐') || mood.includes('愉悦') || mood.includes('开心') || mood.includes('幸福') ? intensity : 0,
+            sadness: mood.includes('悲伤') || mood.includes('忧郁') || mood.includes('难过') ? intensity : 0,
+            anger: mood.includes('愤怒') || mood.includes('生气') || mood.includes('愠怒') ? intensity : 0,
             fear: mood.includes('恐惧') || mood.includes('害怕') ? intensity : 0,
-            peace: mood.includes('平静') || mood.includes('安宁') ? intensity : 0,
-            sadness: mood.includes('悲伤') || mood.includes('忧郁') ? intensity : 0
+            disgust: mood.includes('厌恶') || mood.includes('恶心') || mood.includes('反感') ? intensity : 0,
+            surprise: mood.includes('惊讶') || mood.includes('震惊') || mood.includes('意外') ? intensity : 0
           });
         }
       }

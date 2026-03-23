@@ -52,7 +52,7 @@ export const api = {
   },
 
   dream: {
-    create: (data: { userId: string; content: string; inputType?: 'text' | 'voice'; mood?: string }) =>
+    create: (data: { userId: string; content: string; inputType?: 'text' | 'voice'; mood?: string; dreamDate?: string }) =>
       fetchApi<{ success: boolean; dream: Dream }>('/dreams', {
         method: 'POST',
         body: JSON.stringify(data),

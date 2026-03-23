@@ -46,7 +46,7 @@ export interface AppState {
   fetchUser: (userId: string) => Promise<void>;
   createUser: (userData: Partial<User>) => Promise<User>;
   fetchDreams: (userId: string, page?: number, search?: string) => Promise<void>;
-  createDream: (data: { content: string; inputType?: 'text' | 'voice'; mood?: string }) => Promise<Dream>;
+  createDream: (data: { content: string; inputType?: 'text' | 'voice'; mood?: string; dreamDate?: string }) => Promise<Dream>;
   deleteDream: (dreamId: string) => Promise<void>;
   fetchProfile: (userId: string) => Promise<void>;
   refreshProfile: (userId: string) => Promise<void>;
@@ -150,7 +150,7 @@ export const useStore = create<AppState>()(
         }
       },
 
-      createDream: async (data: { content: string; inputType?: 'text' | 'voice'; mood?: string }) => {
+      createDream: async (data: { content: string; inputType?: 'text' | 'voice'; mood?: string; dreamDate?: string }) => {
         const { user } = get();
         if (!user) throw new Error('请先完善个人信息');
         

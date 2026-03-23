@@ -48,7 +48,7 @@ export function HistoryPage() {
     }
   };
 
-  const getDreamDate = (dream: any) => dream.created_at || dream.createdAt;
+  const getDreamDate = (dream: any) => dream.dream_date || dream.dreamDate || dream.created_at || dream.createdAt;
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '未知时间';

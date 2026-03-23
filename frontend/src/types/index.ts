@@ -60,6 +60,8 @@ export interface Dream {
   _id?: string;
   userId: string;
   user_id?: string;
+  dreamDate?: string;
+  dream_date?: string;
   content: string;
   inputType: 'text' | 'voice';
   input_type?: 'text' | 'voice';
@@ -80,11 +82,12 @@ export interface DreamTheme {
 
 export interface EmotionalTrend {
   date: string;
-  anxiety: number;
-  joy: number;
-  fear: number;
-  peace: number;
+  happiness: number;
   sadness: number;
+  anger: number;
+  fear: number;
+  disgust: number;
+  surprise: number;
 }
 
 export interface UserProfile {
