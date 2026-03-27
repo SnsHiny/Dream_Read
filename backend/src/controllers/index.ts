@@ -8,6 +8,11 @@ const memoryStore = getMemoryStore();
 // Helper to convert camelCase to snake_case for DB
 const toSnakeCase = (str: string) => str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
+function resolveMood(mood: unknown, user: any) {
+  if (typeof mood === 'string' && mood.trim()) return mood.trim();
+  return user?.recentMood || user?.psychologicalStatus || null;
+}
+
 const mapUserToDb = (userData: any) => {
   const dbData: any = {};
   for (const key in userData) {
@@ -206,9 +211,10 @@ export const dreamController = {
       let dream;
       try {
         const id = generateId();
+        const resolvedMood = resolveMood(mood, user);
         const result = await query<any>(
           'insert into dreams (id, user_id, dream_date, content, input_type, mood, tags, analysis, created_at, updated_at) values ($1,$2, coalesce($3::date, current_date), $4,$5,$6,$7::jsonb,$8::jsonb, now(), now()) returning *',
-          [id, userId, dreamDateStr, content, inputType || 'text', mood || null, tagsJson, analysisJson]
+          [id, userId, dreamDateStr, content, inputType || 'text', resolvedMood, tagsJson, analysisJson]
         );
         dream = result.rows[0];
       } catch (dbError) {
@@ -222,7 +228,7 @@ export const dreamController = {
           dreamDate: dreamDateStr || new Date().toISOString().slice(0, 10),
           content,
           inputType: inputType || 'text',
-          mood,
+          mood: resolveMood(mood, user),
           tags,
           analysis,
           createdAt: new Date(),

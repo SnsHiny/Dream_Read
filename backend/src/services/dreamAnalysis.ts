@@ -105,10 +105,10 @@ const SYSTEM_PROMPT = `你是一位精通中西方梦理论的资深梦境解析
 }`;
 
 function buildUserPrompt(dreamContent: string, userInfo?: UserInfo): string {
-  let prompt = `请解析以下梦境：\n\n【梦境内容】\n${dreamContent}\n`;
+  let prompt = `请解析以下梦境/梦感记录：\n\n【梦境/体验内容】\n${dreamContent}\n`;
   
   if (userInfo) {
-    prompt += `\n【做梦者信息】\n`;
+    prompt += `\n【做梦者信息（长期背景）】\n`;
     if (userInfo.nickname) prompt += `昵称：${userInfo.nickname}\n`;
     if (userInfo.gender) prompt += `性别：${userInfo.gender === 'male' ? '男' : userInfo.gender === 'female' ? '女' : '其他'}\n`;
     if (userInfo.age) prompt += `年龄：${userInfo.age}岁\n`;
@@ -122,11 +122,20 @@ function buildUserPrompt(dreamContent: string, userInfo?: UserInfo): string {
     if (userInfo.dreamFrequency) prompt += `做梦频率：${userInfo.dreamFrequency}\n`;
   }
   
-  prompt += `\n请根据以上信息，结合你的专业知识，对这个梦境进行全面、深入的解析。记住要：
-1. 识别梦境中的核心象征，并从多个理论视角进行解读
-2. 分析梦境反映的情绪和心理状态（情绪类型请从埃克曼六种基本情绪中选择其一：快乐、悲伤、愤怒、恐惧、厌恶、惊讶）
-3. 建立梦境与现实生活的合理联系
-4. 给出温和的思考建议
+  prompt += `\n【解读优先级与权重规则】
+- 首要依据：用户本次描述的具体内容（梦境画面、醒后感受、身体反应、当下困扰）
+- 背景参考：家庭环境、个人理想、职业等长期信息仅作为“可能的底色”，不能替代本次内容的证据
+- 不要把长期信息强行套用到每个梦里；只有当梦境符号与用户经历出现清晰对应时才提高其权重
+
+【现实与梦境交界的处理】
+- 若描述包含半梦半醒、梦魇、鬼压床、无法动弹、胸闷、听到声音/看到影像但难以区分现实等，请允许其属于睡眠相关现象（如睡眠瘫痪/入睡前后幻觉/噩梦后的生理反应），在解析中区分“体验层”与“象征层”，避免迷信化与恐吓式推断
+- 建议更聚焦可操作的自我照护与减压策略，并保持温和
+
+请根据以上信息，结合你的专业知识，对这段梦境/体验进行全面、深入但不过度推断的解析。记住要：
+1. 识别核心象征（若内容更偏现实体验，也可识别核心体验/触发点），并从多个理论视角给出并列解读
+2. 分析主要情绪和心理状态（情绪类型从埃克曼六种基本情绪中选择其一：快乐、悲伤、愤怒、恐惧、厌恶、惊讶）
+3. 建立与现实生活的合理联系，优先关联近期情绪/切身经历/日常感受
+4. 给出温和、具体、可执行的思考建议
 5. 在适当位置引用理论来源
 6. 避免使用绝对化的预言性语言
 

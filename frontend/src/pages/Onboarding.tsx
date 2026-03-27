@@ -78,6 +78,7 @@ const steps: FormStep[] = [
         { value: 'confused', label: '迷茫' },
         { value: 'angry', label: '愤怒' },
       ], required: true },
+      { name: 'psychologicalStatus', label: '心理状态', type: 'textarea', placeholder: '例如：最近更常感到焦虑/平静/迷茫？有什么反复出现的困扰？' },
     ],
   },
   {

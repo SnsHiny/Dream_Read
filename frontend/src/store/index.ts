@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage, type StateStorage } from 'zustand/middleware';
 import type { User, Dream, UserProfile } from '@/types';
 import { api } from '@/utils/api';
 
@@ -56,8 +56,37 @@ export interface AppState {
   logout: () => void;
 }
 
+type PersistedState = { user: User | null };
+
+const persistStorageName = 'dream-app-storage';
+
+const safeStateStorage: StateStorage = {
+  getItem: (name) => {
+    if (typeof window === 'undefined') return null;
+    const value = window.localStorage.getItem(name);
+    if (!value) return null;
+    try {
+      JSON.parse(value);
+      return value;
+    } catch {
+      window.localStorage.removeItem(name);
+      return null;
+    }
+  },
+  setItem: (name, value) => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(name, value);
+  },
+  removeItem: (name) => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.removeItem(name);
+  },
+};
+
+const safePersistStorage = createJSONStorage<PersistedState>(() => safeStateStorage);
+
 export const useStore = create<AppState>()(
-  persist(
+  persist<AppState, [], [], PersistedState>(
     (set, get) => ({
       user: null,
       dreams: [],
@@ -234,12 +263,13 @@ export const useStore = create<AppState>()(
 
       logout: () => {
         set({ user: null, dreams: [], profile: null });
-        localStorage.removeItem('dream-app-storage');
+        safeStateStorage.removeItem(persistStorageName);
       },
     }),
     {
-      name: 'dream-app-storage',
-      partialize: (state) => ({ user: state.user }),
+      name: persistStorageName,
+      storage: safePersistStorage,
+      partialize: (state): PersistedState => ({ user: state.user }),
     }
   )
 );

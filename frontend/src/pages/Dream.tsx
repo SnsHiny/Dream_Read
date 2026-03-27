@@ -392,7 +392,7 @@ export function DreamPage() {
                 <textarea
                   value={dreamContent}
                   onChange={(e) => setDreamContent(e.target.value)}
-                  placeholder="描述您的梦境，包括场景、人物、情绪、颜色等细节..."
+                  placeholder="写下你的梦境或梦感：包括场景、人物、情绪、颜色等细节；也可以描述半梦半醒、梦魇/鬼压床、醒来后的身体感受与当下困扰。"
                   className="w-full h-48 bg-transparent border-none outline-none resize-none text-lg text-white placeholder-gray-500"
                 />
                 

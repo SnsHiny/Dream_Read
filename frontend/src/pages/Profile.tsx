@@ -344,7 +344,7 @@ export function ProfilePage() {
                 <p className="text-gray-500 text-center py-12">暂无情绪趋势数据</p>
               )}
 
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="mt-6 grid grid-cols-1 gap-4">
                 <GlowCard hover={false}>
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-white font-medium">Ekman 六种基本情绪</p>
@@ -365,16 +365,16 @@ export function ProfilePage() {
                       </RadarChart>
                     </ResponsiveContainer>
                   </div>
-                </GlowCard>
 
-                <div className="p-4 rounded-xl bg-dream-deeper/40 border border-purple-500/10">
-                  <p className="text-white font-medium mb-2">计量规则（单位：D）</p>
-                  <div className="text-sm text-gray-300 space-y-1">
-                    <p>D 在 0–100 之间流动。</p>
-                    <p>数值越高，越接近梦境的核心回声。</p>
-                    <p>六种情绪彼此独立，互不抵消。</p>
+                  <div className="mt-4 pt-4 border-t border-purple-500/10">
+                    <p className="text-xs text-gray-400 mb-2">计量规则（单位：D）</p>
+                    <div className="text-xs text-gray-500 space-y-1">
+                      <p>D 在 0–100 之间流动。</p>
+                      <p>数值越高，越接近梦境的核心回声。</p>
+                      <p>六种情绪彼此独立，互不抵消。</p>
+                    </div>
                   </div>
-                </div>
+                </GlowCard>
               </div>
             </GlowCard>
           </motion.div>
